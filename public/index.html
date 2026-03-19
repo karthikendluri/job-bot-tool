@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Job Apply Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Job Application Tracker</h1>
+    <div class="form-container">
+        <input type="text" id="title" placeholder="Job Title">
+        <input type="text" id="company" placeholder="Company">
+        <input type="text" id="url" placeholder="Job URL">
+        <button onclick="applyJob()">Log Application</button>
+    </div>
+
+    <table id="jobTable">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Title</th>
+                <th>Company</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        async function loadJobs() {
+            const res = await fetch('/api/jobs');
+            const data = await res.json();
+            const tbody = document.querySelector('#jobTable tbody');
+            tbody.innerHTML = data.map(j => `
+                <tr>
+                    <td>${j.date}</td>
+                    <td>${j.title}</td>
+                    <td>${j.company}</td>
+                    <td>${j.status}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function applyJob() {
+            const job = {
+                title: document.getElementById('title').value,
+                company: document.getElementById('company').value,
+                url: document.getElementById('url').value
+            };
+            await fetch('/api/apply', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(job)
+            });
+            loadJobs();
+        }
+        loadJobs();
+    </script>
+</body>
+</html>
